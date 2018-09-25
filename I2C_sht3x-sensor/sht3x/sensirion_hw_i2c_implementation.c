@@ -167,7 +167,7 @@ void sensirion_i2c_init()
  */
 s8 sensirion_i2c_read(u8 address, u8 *data, u16 count)
 {
-    return (s8) I2C_WriteBlock(address, data, count);
+    return (s8) I2C_ReadBlock(address, data, count);
 }
 
 /**
