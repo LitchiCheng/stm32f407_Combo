@@ -132,11 +132,11 @@ void sensirion_i2c_init()
 //    NVIC_Init(&NVIC_InitStructure);	
 
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-	GPIO_PinAFConfig(GPIOB,GPIO_PinSource6,GPIO_AF_I2C1);
+	GPIO_PinAFConfig(GPIOB,GPIO_PinSource8,GPIO_AF_I2C1);
 	GPIO_PinAFConfig(GPIOB,GPIO_PinSource7,GPIO_AF_I2C1);
 	gpioinit.GPIO_Mode = GPIO_Mode_AF;
 	gpioinit.GPIO_OType = GPIO_OType_OD;
-	gpioinit.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
+	gpioinit.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_7;
 	gpioinit.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	gpioinit.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOB, &gpioinit);
