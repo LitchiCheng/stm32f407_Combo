@@ -19,6 +19,7 @@ int main(void)
 	  LED_D2_D3(GPIO_Pin_6);
         /* printf("SHT sensor probing failed\n"); */
     }
+	GPIO_SetBits(GPIOA, GPIO_Pin_6);
 	LED_D2_D3(GPIO_Pin_7);
     /*printf("SHT sensor probing successful\n"); */
 

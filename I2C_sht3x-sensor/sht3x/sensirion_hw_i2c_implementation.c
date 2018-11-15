@@ -1,102 +1,98 @@
-/*
- * Copyright (c) 2018, Sensirion AG
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * * Redistributions of source code must retain the above copyright notice, this
- *   list of conditions and the following disclaimer.
- *
- * * Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- *
- * * Neither the name of Sensirion AG nor the names of its
- *   contributors may be used to endorse or promote products derived from
- *   this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+
 
 #include <stm32f4xx.h>
 #include <stdint.h>
 #include "sensirion_arch_config.h"
 #include "sensirion_i2c.h"
 #include "delay.h"
-/**
- * Create new I2C instance. You may also use a different interface, e.g. hi2c2,
- * depending on your CubeMX configuration
- */
+
 static I2C_InitTypeDef hi2c1;
 static GPIO_InitTypeDef gpioinit;
-/**
- * Initialize all hard- and software components that are needed for the I2C
- * communication.
- */
- 
- s8 I2C_WriteByte(uint8_t id, const uint8_t* p_data)
-{
-	I2C_GenerateSTART(I2C1, ENABLE);
-	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
-	I2C_Send7bitAddress(I2C1, (id<<1), I2C_Direction_Transmitter);
-	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
-	I2C_SendData(I2C1, *p_data);
-	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-	I2C_SendData(I2C1, *(p_data+1));
-	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-	I2C_GenerateSTOP(I2C1, ENABLE);
-	return 0;
-}
+static uint32_t I2Cx_TIMEOUT_UserCallback(char value);
 
+#define I2Cx_FLAG_TIMEOUT			((uint32_t) 900)
+#define I2Cx_LONG_TIMEOUT 			((uint32_t)(300 * I2Cx_FLAG_TIMEOUT))
+#define WAIT_FOR_FLAG(flag, value, timeout, errorcode)	I2CTimeout = timeout;\
+														while(I2C_GetFlagStatus(I2C1, flag) != value){\
+														if((I2CTimeout--) == 0) return I2Cx_TIMEOUT_UserCallback(errorcode);\
+														}\
+
+#define CLEAR_ADDR_BIT			I2C_ReadRegister(I2C1, I2C_Register_SR1);\
+								I2C_ReadRegister(I2C1, I2C_Register_SR2);\
+
+static uint32_t I2Cx_TIMEOUT_UserCallback(char value)
+{
+	I2C_InitTypeDef hi2c1;
+	I2C_GenerateSTOP(I2C1, ENABLE);
+	I2C_SoftwareResetCmd(I2C1, ENABLE);
+	I2C_SoftwareResetCmd(I2C1, DISABLE);
+	I2C_DeInit(I2C1);
+	hi2c1.I2C_ClockSpeed = 100000;
+    hi2c1.I2C_Mode = I2C_Mode_I2C;
+    hi2c1.I2C_DutyCycle = I2C_DutyCycle_2;
+    hi2c1.I2C_OwnAddress1 = 0;
+    hi2c1.I2C_Ack = I2C_Ack_Enable;
+    hi2c1.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
+	I2C_Cmd(I2C1, ENABLE);
+	I2C_Init(I2C1, &hi2c1);
+	//Console::Instance()->printf("I2C1 Restarted. \n");
+	return 1;
+}
  
  s8 I2C_WriteBlock(uint8_t w_addr, const uint8_t* p_data, uint16_t len)
 {
-	//__disable_irq();
 	
 	uint16_t i = 0;
+	__IO uint32_t I2CTimeout = I2Cx_LONG_TIMEOUT;
+	WAIT_FOR_FLAG(I2C_FLAG_BUSY,RESET,I2Cx_LONG_TIMEOUT,1);	
 	I2C_GenerateSTART(I2C1, ENABLE);
-	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
-	
+	WAIT_FOR_FLAG(I2C_FLAG_SB, SET, I2Cx_FLAG_TIMEOUT, 2);
 	I2C_Send7bitAddress(I2C1,(w_addr << 1), I2C_Direction_Transmitter);
-	//printf("address:%x",w_addr);
-	//delay_us(9);
-	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
-	
-	while (i < len) {
+	WAIT_FOR_FLAG(I2C_FLAG_ADDR, SET, I2Cx_FLAG_TIMEOUT, 3);
+	CLEAR_ADDR_BIT;
+	while (i < len) 
+	{
 		I2C_SendData(I2C1, *p_data);
-		while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED | I2C_EVENT_MASTER_BYTE_TRANSMITTING));
+		WAIT_FOR_FLAG(I2C_FLAG_TXE, SET, I2Cx_FLAG_TIMEOUT, 4);
 		i++; p_data++;
 	}
+	WAIT_FOR_FLAG(I2C_FLAG_BTF, SET, I2Cx_FLAG_TIMEOUT, 5);
 	I2C_GenerateSTOP(I2C1, ENABLE);
-	//__enable_irq();
 	return 0;
 }
 
 s8 I2C_ReadBlock(uint8_t r_addr, uint8_t* p_data, uint16_t len)
 {
-	while (I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
+	__IO uint32_t I2CTimeout = I2Cx_LONG_TIMEOUT;
+	WAIT_FOR_FLAG(I2C_FLAG_BUSY,RESET,I2Cx_LONG_TIMEOUT,6);
 	I2C_GenerateSTART(I2C1, ENABLE);
-	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+	WAIT_FOR_FLAG(I2C_FLAG_SB, SET, I2Cx_FLAG_TIMEOUT, 7);
 	I2C_Send7bitAddress(I2C1, (r_addr << 1), I2C_Direction_Transmitter);
-	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
-	I2C_Cmd(I2C1, ENABLE);
+	WAIT_FOR_FLAG(I2C_FLAG_ADDR, SET, I2Cx_FLAG_TIMEOUT, 8);
+	CLEAR_ADDR_BIT;
+	WAIT_FOR_FLAG (I2C_FLAG_TXE, SET, I2Cx_FLAG_TIMEOUT, 9);
 	I2C_SendData(I2C1,r_addr);
-	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+	WAIT_FOR_FLAG (I2C_FLAG_TXE, SET, I2Cx_FLAG_TIMEOUT, 10); 
 	I2C_GenerateSTART(I2C1, ENABLE);
-	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+	WAIT_FOR_FLAG (I2C_FLAG_SB, SET, I2Cx_FLAG_TIMEOUT, 11);
+	
 	I2C_Send7bitAddress(I2C1,(r_addr << 1), I2C_Direction_Receiver);
-	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));
-	while (len)
+	
+	WAIT_FOR_FLAG (I2C_FLAG_ADDR, SET, I2Cx_FLAG_TIMEOUT, 12);
+	/*规定死就2个长度*/
+//	I2C_AcknowledgeConfig(I2C1, DISABLE);
+//	I2C1->CR1 |= I2C_CR1_POS;
+//	CLEAR_ADDR_BIT;
+//	WAIT_FOR_FLAG (I2C_FLAG_BTF, SET, I2Cx_FLAG_TIMEOUT, 13);
+//	I2C_GenerateSTOP(I2C1, ENABLE);
+//	*p_data = I2C_ReceiveData(I2C1);
+//	p_data++;
+//	*p_data = I2C_ReceiveData(I2C1);
+//	I2C_ClearFlag(I2C1,I2C_FLAG_BTF);
+//	WAIT_FOR_FLAG(I2C_FLAG_BUSY,RESET,I2Cx_LONG_TIMEOUT,14);
+//	I2C_AcknowledgeConfig(I2C1, ENABLE);
+//	I2C1->CR1 &= ~I2C_CR1_POS;
+	while(len) 
 	{
 		if (len == 1)
 		{
@@ -116,29 +112,27 @@ s8 I2C_ReadBlock(uint8_t r_addr, uint8_t* p_data, uint16_t len)
 
 void sensirion_i2c_init()
 {
-//	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-//	I2C_ITConfig(I2C1, I2C_IT_EVT | I2C_IT_BUF, ENABLE);	
-//	I2C_ITConfig(I2C1, I2C_IT_ERR, ENABLE);
 
-//	NVIC_InitTypeDef NVIC_InitStructure;
-//	NVIC_InitStructure.NVIC_IRQChannel = I2C1_EV_IRQn;
-//    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-//    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
-//    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-//    NVIC_Init(&NVIC_InitStructure);
-	
-//	NVIC_InitStructure.NVIC_IRQChannel = I2C1_ER_IRQn;
-//    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
-//    NVIC_Init(&NVIC_InitStructure);	
 
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-	GPIO_PinAFConfig(GPIOB,GPIO_PinSource8,GPIO_AF_I2C1);
-	GPIO_PinAFConfig(GPIOB,GPIO_PinSource7,GPIO_AF_I2C1);
+	gpioinit.GPIO_Mode = GPIO_Mode_OUT;
+	gpioinit.GPIO_OType = GPIO_OType_PP;
+	gpioinit.GPIO_PuPd = GPIO_PuPd_UP;
+	gpioinit.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_7;
+	gpioinit.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOB, &gpioinit);
+	GPIO_SetBits(GPIOB, GPIO_Pin_7);
+	GPIO_SetBits(GPIOB, GPIO_Pin_8);
+	I2C_SoftwareResetCmd(I2C1, ENABLE);
+
+	
 	gpioinit.GPIO_Mode = GPIO_Mode_AF;
 	gpioinit.GPIO_OType = GPIO_OType_OD;
 	gpioinit.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_7;
 	gpioinit.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	gpioinit.GPIO_Speed = GPIO_Speed_2MHz;
+	gpioinit.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_PinAFConfig(GPIOB,GPIO_PinSource8,GPIO_AF_I2C1);
+	GPIO_PinAFConfig(GPIOB,GPIO_PinSource7,GPIO_AF_I2C1);
 	GPIO_Init(GPIOB, &gpioinit);
 	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1,ENABLE);
