@@ -1,5 +1,5 @@
 Dependencies for Project 'Template', Target 'Template': (DO NOT MODIFY !)
-F (.\main.c)(0x5BACDC74)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork -I ..\CORE -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\FWLIB\inc -I ..\sht3x -I ..\sht3xsw -I ..\I2CDriver-I.\RTE\_Template-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="523" -D_RTE_ -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o ..\obj\main.o --omf_browse ..\obj\main.crf --depend ..\obj\main.d)
+F (.\main.c)(0x5C6D2B66)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork -I ..\CORE -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\FWLIB\inc -I ..\sht3x -I ..\sht3xsw -I ..\I2CDriver-I.\RTE\_Template-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="523" -D_RTE_ -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o ..\obj\main.o --omf_browse ..\obj\main.crf --depend ..\obj\main.d)
 I (stm32f4xx.h)(0x5BA3095B)
 I (..\CORE\core_cm4.h)(0x53C7D530)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x57F606B8)
@@ -39,9 +39,6 @@ I (..\SYSTEM\usart\usart.h)(0x5397010C)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x57F606B8)
 I (..\SYSTEM\sys\sys.h)(0x55E3C15C)
 I (..\SYSTEM\delay\delay.h)(0x55E3C15C)
-I (..\sht3x\sht.h)(0x5B862D6A)
-I (..\sht3x\sensirion_arch_config.h)(0x5B862D72)
-I (..\sht3x\git_version.h)(0x5B862D6A)
 F (.\stm32f4xx_it.c)(0x5426CDF4)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork -I ..\CORE -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\FWLIB\inc -I ..\sht3x -I ..\sht3xsw -I ..\I2CDriver-I.\RTE\_Template-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="523" -D_RTE_ -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o ..\obj\stm32f4xx_it.o --omf_browse ..\obj\stm32f4xx_it.crf --depend ..\obj\stm32f4xx_it.d)
 I (stm32f4xx_it.h)(0x5426CDC1)
 I (stm32f4xx.h)(0x5BA3095B)

@@ -29,14 +29,18 @@ Project File Date:  02/20/2019
 *** Warning: Using Microlib and C++ file(s) might cause the linker to fail !
   
 Build target 'Template'
-compiling I2CDriver.cpp...
-..\I2CDriver\I2CDriver.h(42): warning:  #1-D: last line of file ends without a newline
-  #endif
-..\I2CDriver\I2CDriver.cpp: 1 warning, 0 errors
+compiling main.c...
+main.c(20): warning:  #111-D: statement is unreachable
+  	GPIO_SetBits(GPIOA, GPIO_Pin_6);
+main.c(27): warning:  #111-D: statement is unreachable
+      delay_ms(1000);
+main.c(10): warning:  #177-D: variable "t"  was declared but never referenced
+  	u32 t=0;
+main.c: 3 warnings, 0 errors
 linking...
-Program Size: Code=7598 RO-data=430 RW-data=60 ZI-data=1244  
+Program Size: Code=4972 RO-data=424 RW-data=48 ZI-data=1224  
 FromELF: creating hex file...
-"..\OBJ\Template.axf" - 0 Error(s), 1 Warning(s).
+"..\OBJ\Template.axf" - 0 Error(s), 3 Warning(s).
 
 <h2>Software Packages used:</h2>
 
