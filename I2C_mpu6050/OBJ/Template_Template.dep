@@ -1457,7 +1457,6 @@ I (..\FWLIB\inc\stm32f4xx_fsmc.h)(0x53DBAFAD)
 I (..\SYSTEM\usart\usart.h)(0x5397010C)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x57F606B8)
 F (..\README\README.txt)(0x00000000)()
-F (..\sht3x\example_usage.c)(0x5B862D6A)()
 F (..\sht3x\sensirion_common.c)(0x5B862D72)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork -I ..\CORE -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\FWLIB\inc -I ..\sht3x -I ..\sht3xsw -I ..\I2CDriver-I.\RTE\_Template-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="523" -D_RTE_ -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o ..\obj\sensirion_common.o --omf_browse ..\obj\sensirion_common.crf --depend ..\obj\sensirion_common.d)
 I (..\sht3x\sensirion_common.h)(0x5B862D72)
 I (..\sht3x\sensirion_arch_config.h)(0x5B862D72)
@@ -1517,13 +1516,8 @@ I (..\sht3x\sensirion_i2c.h)(0x5B862D72)
 I (..\sht3x\sht.h)(0x5B862D6A)
 I (..\sht3x\git_version.h)(0x5B862D6A)
 I (..\sht3x\sht_common.h)(0x5B862D6A)
-F (..\sht3xsw\sensirion_common.c)(0x5B862D72)()
-F (..\sht3xsw\sensirion_sw_i2c.c)(0x5B9A0079)()
-F (..\sht3xsw\sensirion_sw_i2c_implementation.c)(0x5BA359C2)()
-F (..\sht3xsw\sht_common.c)(0x5B862D6A)()
-F (..\sht3xsw\sht3x.c)(0x5BA3562E)()
-F (..\I2CDriver\I2CDriver.cpp)(0x5C6D1B70)(--cpp -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork -I ..\CORE -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\FWLIB\inc -I ..\sht3x -I ..\sht3xsw -I ..\I2CDriver-I.\RTE\_Template-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="523" -D_RTE_ -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o ..\obj\i2cdriver.o --omf_browse ..\obj\i2cdriver.crf --depend ..\obj\i2cdriver.d)
-I (..\I2CDriver\I2CDriver.h)(0x5C6D1B73)
+F (..\I2CDriver\I2CDriver.cpp)(0x5C6D2A04)(--cpp -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork -I ..\CORE -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\FWLIB\inc -I ..\sht3x -I ..\sht3xsw -I ..\I2CDriver-I.\RTE\_Template-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="523" -D_RTE_ -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o ..\obj\i2cdriver.o --omf_browse ..\obj\i2cdriver.crf --depend ..\obj\i2cdriver.d)
+I (..\I2CDriver\I2CDriver.h)(0x5C6D2A04)
 I (..\USER\stm32f4xx.h)(0x5BA3095B)
 I (..\CORE\core_cm4.h)(0x53C7D530)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x57F606B8)
