@@ -3,10 +3,14 @@
 #include "delay.h"
 #include <stdint.h>
 void LED_D2_D3(uint32_t);
-
-//STM32F4¹¤³ÌÄ£°å-¿âº¯Êý°æ±¾
-//ÌÔ±¦µêÆÌ£ºhttp://mcudev.taobao.com
+#include "SEGGER_RTT.h"
 #include "sht.h"
+
+//PB7 - SDA
+//PB8 - SCL
+//GND - VSS
+//3.3V - VCC
+
 int main(void)
 {
 	
@@ -17,11 +21,11 @@ int main(void)
 	//LED_D2_D3(GPIO_Pin_7);
   while (sht_probe() != STATUS_OK) {
 	  LED_D2_D3(GPIO_Pin_6);
-        /* printf("SHT sensor probing failed\n"); */
+        SEGGER_RTT_printf(0,"SHT sensor probing failed\n");
     }
 	GPIO_SetBits(GPIOA, GPIO_Pin_6);
 	LED_D2_D3(GPIO_Pin_7);
-    /*printf("SHT sensor probing successful\n"); */
+    SEGGER_RTT_printf(0,"SHT sensor probing successful\n");
 
     while (1) {
         s32 temperature, humidity;
@@ -30,10 +34,10 @@ int main(void)
          */
         s8 ret = sht_measure_blocking_read(&temperature, &humidity);
         if (ret == STATUS_OK) {
-            /* printf("measured temperature: %0.2f degreeCelsius, "
-                      "measured humidity: %0.2f percentRH\n",
-                      temperature / 1000.0f,
-                      humidity / 1000.0f); */
+            SEGGER_RTT_printf(0,"measured temperature: %d degreeCelsius, "
+                      "measured humidity: %d percentRH\n",
+                      temperature / 1000,
+                      humidity / 1000); 
 			LED_D2_D3(GPIO_Pin_6);
         } else {
             //printf("error reading measurement\n");

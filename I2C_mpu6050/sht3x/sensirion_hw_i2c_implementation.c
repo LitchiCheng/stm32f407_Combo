@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include "sensirion_arch_config.h"
 #include "sensirion_i2c.h"
-#include "delay.h"
 
 static I2C_InitTypeDef hi2c1;
 static GPIO_InitTypeDef gpioinit;
