@@ -6,7 +6,7 @@
 #define CLEAR_ADDR_BIT			I2C_ReadRegister(I2C1, I2C_Register_SR1);\
 								I2C_ReadRegister(I2C1, I2C_Register_SR2);\
 
-const int I2Cx_FLAG_TIMEOUT =	60;		//test result: max 52 times,sometime is 2 times and 51 times
+const int I2Cx_FLAG_TIMEOUT =	2000;		//test result: max 52 times,sometime is 2 times and 51 times
 const int I2Cx_LONG_TIMEOUT = 80;		//give the allowance 
 const int I2Cx_RECIEVE_TIMEOUT = 400;	//test result: mostly 282 times
 const int I2Cx_SEND_TIMEOUT = 80;
@@ -16,10 +16,10 @@ class I2CDriver
 public:
 	I2CDriver()
 	{
-		_clock_speed = 40000;
+		_clock_speed = 400000;
 		_i2c_mode = I2C_Mode_I2C;
 		_duty_cycle = I2C_DutyCycle_16_9;
-		_own_address = 0x00;
+		_own_address = 0x89;
 		_scl_gpio_pin = GPIO_Pin_8;
 		_sda_gpio_pin = GPIO_Pin_7;
 		_gpio_chanel = GPIOB;
@@ -34,6 +34,10 @@ public:
 	
 	int writeArrary(uint8_t w_addr, const uint8_t* p_data, uint16_t len);
 	int writeByte(uint8_t w_addr, const uint8_t* p_data);
+	void I2C_ByteWrite(uint8_t REG_Address,uint8_t REG_data);
+	uint8_t I2C_ByteRead(uint8_t REG_Address);
+	void I2C_Mode_Config(void);
+	void I2C_GPIO_Config(void);
 	int readByte(uint8_t r_addr, uint8_t* p_data, uint16_t len);
 	int readArrary();
 	int cleanReadBuf();
