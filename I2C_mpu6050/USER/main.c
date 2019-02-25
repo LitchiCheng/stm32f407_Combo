@@ -39,7 +39,7 @@ I2CDriver i2c;
 int main(void)
 {
 	uart_init(115200);
-	delay_init(84);
+	delay_init(168);
 	i2c.initialize();
 	InitMPU6050();
 	delay_ms(2000);
@@ -47,12 +47,12 @@ int main(void)
 	while(1)
 	{
 		SEGGER_RTT_printf(0,"\r\n---------aX--------%d \r\n",GetData(ACCEL_XOUT_H));
-		SEGGER_RTT_printf(0,"\r\n---------aY---------%d \r\n",GetData(ACCEL_YOUT_H)); 
+		SEGGER_RTT_printf(0,"\r\n---------aY---------%d \r\n",GetData(ACCEL_YOUT_H));		
 		SEGGER_RTT_printf(0,"\r\n---------aZ----------%d \r\n",GetData(ACCEL_ZOUT_H)); 
 		SEGGER_RTT_printf(0,"\r\n---------gX----------%d \r\n",GetData(GYRO_XOUT_H)); 
 		SEGGER_RTT_printf(0,"\r\n---------gY----------%d \r\n",GetData(GYRO_YOUT_H)); 
 		SEGGER_RTT_printf(0,"\r\n---------gZ----------%d \r\n",GetData(GYRO_ZOUT_H));
-		delay_ms(2000);
+		delay_ms(20);
 		SEGGER_RTT_printf(0,"=====================================================================");
 	} 
 	

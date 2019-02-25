@@ -19,6 +19,21 @@ uint32_t I2CDriver::WAIT_FOR_FLAG(uint32_t flag, FlagStatus value, int timeout, 
 		}
 	}
 }
+
+uint32_t I2CDriver::WAIT_FOR_EVENT(uint32_t event, int timeout, int errorcode)
+{
+	int I2CTimeout = timeout;	
+	while(I2CTimeout && (!I2C_CheckEvent(I2C1,event)))			//attention the judge order
+	{
+		I2CTimeout--;
+		if(I2CTimeout < 0 ){I2CTimeout = 0;}
+		if(I2CTimeout == 0)
+		{
+			I2Cx_TIMEOUT_UserCallback(errorcode);
+			return 1;
+		}
+	}	
+}
 														
 uint32_t I2CDriver::I2Cx_TIMEOUT_UserCallback(char value)
 {
@@ -159,132 +174,60 @@ int I2CDriver::writeByte(uint8_t w_addr, const uint8_t* p_data)
 }
 
 void I2CDriver::I2C_ByteWrite(uint8_t REG_Address,uint8_t REG_data)
-{
-//	 	__IO uint32_t I2CTimeout = I2Cx_LONG_TIMEOUT;
-//	//judge if busy or not
-//	WAIT_FOR_FLAG(I2C_FLAG_BUSY,RESET,I2Cx_LONG_TIMEOUT,1);
-//	//start by write CR1
-//	I2C_GenerateSTART(I2C1, ENABLE);
-//	//judge if SB bit of SR1 is 1,if right ,the send signal is finished.
-//	WAIT_FOR_FLAG(I2C_FLAG_SB, SET, I2Cx_FLAG_TIMEOUT, 2);
-//	
-//	 I2C_Send7bitAddress(I2C1,0xd0,I2C_Direction_Transmitter);
-
-//	 while(!I2C_CheckEvent(I2C1,I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED)){SEGGER_RTT_printf(0,"failed : send address failed \r\n");};
-//	
-//	 I2C_SendData(I2C1,REG_Address);
-
-//	 while(!I2C_CheckEvent(I2C1,I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-//SEGGER_RTT_printf(0,"failed :send address data  \r\n");
-//	 I2C_SendData(I2C1,REG_data);
-
-//	 //while(!I2C_CheckEvent(I2C1,I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-//SEGGER_RTT_printf(0,"failed : send data \r\n");
-//	 I2C_GenerateSTOP(I2C1,ENABLE);
-		
+{		
 	uint8_t data[2] = {REG_Address, REG_data};
 	writeArrary(0xd0, data, 2);
-
 }
 
 uint8_t I2CDriver::I2C_ByteRead(uint8_t REG_Address)
 {
-	uint8_t REG_data;
-
-	while(I2C_GetFlagStatus(I2C1,I2C_FLAG_BUSY));
-	//SEGGER_RTT_printf(0,"SUCCESS : NO BUSY \r\n");
-	I2C_GenerateSTART(I2C1,ENABLE);
-
-	while(!I2C_CheckEvent(I2C1,I2C_EVENT_MASTER_MODE_SELECT));
-	//SEGGER_RTT_printf(0,"SUCCESS : START \r\n");
-	I2C_Send7bitAddress(I2C1,0xD0,I2C_Direction_Transmitter);
-
-	while(!I2C_CheckEvent(I2C1,I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
-	//SEGGER_RTT_printf(0,"SUCCESS : SEND ADDRESS -> \r\n");
-	I2C_Cmd(I2C1,ENABLE);
-	//CLEAR_ADDR_BIT;
-	I2C_SendData(I2C1,REG_Address);
-
-	while(!I2C_CheckEvent(I2C1,I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-//SEGGER_RTT_printf(0,"SUCCESS : SEND REG ADDRESS \r\n");
-	I2C_GenerateSTART(I2C1,ENABLE);
-
-	while(!I2C_CheckEvent(I2C1,I2C_EVENT_MASTER_MODE_SELECT));
-//SEGGER_RTT_printf(0,"SUCCESS : START \r\n");
-	I2C_Send7bitAddress(I2C1,(0xD0),I2C_Direction_Receiver);
-
-	while(!I2C_CheckEvent(I2C1,I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));
-//SEGGER_RTT_printf(0,"SUCCESS :SEND ADDRESS <- \r\n");
-	
-	I2C_AcknowledgeConfig(I2C1,DISABLE);
-
-	I2C_GenerateSTOP(I2C1,ENABLE);
-
-	while(!(I2C_CheckEvent(I2C1,I2C_EVENT_MASTER_BYTE_RECEIVED)));
-//SEGGER_RTT_printf(0,"SUCCESS :STOP \r\n");
-	REG_data=I2C_ReceiveData(I2C1);
-	I2C_AcknowledgeConfig(I2C1, ENABLE);
-	return REG_data;
-	
-
-//	int receive_count = I2Cx_RECIEVE_TIMEOUT;
-//	__IO uint32_t I2CTimeout = I2Cx_LONG_TIMEOUT;
-//	WAIT_FOR_FLAG(I2C_FLAG_BUSY,RESET,I2Cx_LONG_TIMEOUT,7);
-//	I2C_GenerateSTART(I2C1, ENABLE);
-//	WAIT_FOR_FLAG(I2C_FLAG_SB, SET, I2Cx_FLAG_TIMEOUT, 8);
-//	I2C_Send7bitAddress(I2C1, (0xD0), I2C_Direction_Transmitter);
-//	WAIT_FOR_FLAG(I2C_FLAG_ADDR, SET, I2Cx_FLAG_TIMEOUT, 9);
-//	CLEAR_ADDR_BIT;
-//	WAIT_FOR_FLAG (I2C_FLAG_TXE, SET, I2Cx_FLAG_TIMEOUT, 10);
-//	I2C_SendData(I2C1,REG_Address);
-//	WAIT_FOR_FLAG (I2C_FLAG_TXE, SET, I2Cx_FLAG_TIMEOUT, 11); 
-//	I2C_GenerateSTART(I2C1, ENABLE);
-//	WAIT_FOR_FLAG (I2C_FLAG_SB, SET, I2Cx_FLAG_TIMEOUT, 12);
-//	I2C_Send7bitAddress(I2C1,(0xD0), I2C_Direction_Receiver);
-//	WAIT_FOR_FLAG (I2C_FLAG_ADDR, SET, I2Cx_FLAG_TIMEOUT, 13);
-//	I2C_AcknowledgeConfig(I2C1,DISABLE);
-//	I2C_GenerateSTOP(I2C1,ENABLE);
-//	//while(!(I2C_CheckEvent(I2C1,I2C_EVENT_MASTER_BYTE_RECEIVED))){SEGGER_RTT_printf(0,"failed : recieved \r\n");};
-//	WAIT_FOR_FLAG (I2C_FLAG_RXNE, SET, I2Cx_FLAG_TIMEOUT, 14);
-//	
-//	REG_data=I2C_ReceiveData(I2C1);                                                                                                                                                                                                                                               
-
-//	return REG_data;
-//	uint8_t data;
-//	readByte(0xD0, &data, 1);
-//	return data;
-	
+	uint8_t return_data;
+	readByte(0xD0, REG_Address, &return_data, 1);
+	return return_data;	
 }
 
-int I2CDriver::readByte(uint8_t r_addr, uint8_t* p_data, uint16_t len)
+int I2CDriver::readByte(uint8_t slave_address, uint8_t slave_register_address, uint8_t* p_data, uint16_t len)
 {
 	int receive_count = I2Cx_RECIEVE_TIMEOUT;
+	
 	__IO uint32_t I2CTimeout = I2Cx_LONG_TIMEOUT;
-	WAIT_FOR_FLAG(I2C_FLAG_BUSY,RESET,I2Cx_LONG_TIMEOUT,7);
-	I2C_GenerateSTART(I2C1, ENABLE);
-	WAIT_FOR_FLAG(I2C_FLAG_SB, SET, I2Cx_FLAG_TIMEOUT, 8);
-	I2C_Send7bitAddress(I2C1, (r_addr), I2C_Direction_Transmitter);
-	WAIT_FOR_FLAG(I2C_FLAG_ADDR, SET, I2Cx_FLAG_TIMEOUT, 9);
-	CLEAR_ADDR_BIT;
-	WAIT_FOR_FLAG (I2C_FLAG_TXE, SET, I2Cx_FLAG_TIMEOUT, 10);
-	I2C_SendData(I2C1,r_addr);
-	WAIT_FOR_FLAG (I2C_FLAG_TXE, SET, I2Cx_FLAG_TIMEOUT, 11); 
-	I2C_GenerateSTART(I2C1, ENABLE);
-	WAIT_FOR_FLAG (I2C_FLAG_SB, SET, I2Cx_FLAG_TIMEOUT, 12);
-	I2C_Send7bitAddress(I2C1,(r_addr), I2C_Direction_Receiver);
-	WAIT_FOR_FLAG (I2C_FLAG_ADDR, SET, I2Cx_FLAG_TIMEOUT, 13);
+
+	WAIT_FOR_FLAG(I2C_FLAG_BUSY,RESET,I2Cx_LONG_TIMEOUT,7);;
+
+	I2C_GenerateSTART(I2C1,ENABLE);
+
+	WAIT_FOR_EVENT(I2C_EVENT_MASTER_MODE_SELECT, I2Cx_LONG_TIMEOUT, 8);
+
+	I2C_Send7bitAddress(I2C1,slave_address,I2C_Direction_Transmitter);
+
+	WAIT_FOR_EVENT(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED, I2Cx_LONG_TIMEOUT, 9);
+	
+	I2C_Cmd(I2C1,ENABLE);
+	
+	I2C_SendData(I2C1,slave_register_address);
+
+	WAIT_FOR_EVENT(I2C_EVENT_MASTER_BYTE_TRANSMITTED, I2Cx_LONG_TIMEOUT, 10);
+	
+	I2C_GenerateSTART(I2C1,ENABLE);
+
+	WAIT_FOR_EVENT(I2C_EVENT_MASTER_MODE_SELECT, I2Cx_LONG_TIMEOUT, 11);
+	
+	I2C_Send7bitAddress(I2C1,slave_address,I2C_Direction_Receiver);
+	
+	WAIT_FOR_EVENT(I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED, I2Cx_LONG_TIMEOUT, 12);
+	
 	while(len && receive_count)
-	{	
-		if (len == 1)
+	{
+		if(len == 1)
 		{
-			I2C_AcknowledgeConfig(I2C1, DISABLE);
-			I2C_GenerateSTOP(I2C1, ENABLE);
+		  I2C_AcknowledgeConfig(I2C1, DISABLE);
+		  I2C_GenerateSTOP(I2C1, ENABLE);
 		}
-		if (I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED))
+		if(I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED))
 		{
-			*p_data = I2C_ReceiveData(I2C1);
-			p_data++;
-			len--;
+		  *p_data = I2C_ReceiveData(I2C1);
+		  p_data++;
+		  len--;
 		}
 		else
 		{
@@ -292,6 +235,7 @@ int I2CDriver::readByte(uint8_t r_addr, uint8_t* p_data, uint16_t len)
 			if(receive_count < 0 ){receive_count = 0;}
 		}
 	}
+	CLEAR_ADDR_BIT;
 	I2C_AcknowledgeConfig(I2C1, ENABLE);
 	return 0;
 } 

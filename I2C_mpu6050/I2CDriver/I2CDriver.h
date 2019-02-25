@@ -6,9 +6,9 @@
 #define CLEAR_ADDR_BIT			I2C_ReadRegister(I2C1, I2C_Register_SR1);\
 								I2C_ReadRegister(I2C1, I2C_Register_SR2);\
 
-const int I2Cx_FLAG_TIMEOUT =	2000;		//test result: max 52 times,sometime is 2 times and 51 times
-const int I2Cx_LONG_TIMEOUT = 80;		//give the allowance 
-const int I2Cx_RECIEVE_TIMEOUT = 400;	//test result: mostly 282 times
+const int I2Cx_FLAG_TIMEOUT =	100;		//test result: max 52 times,sometime is 2 times and 51 times
+const int I2Cx_LONG_TIMEOUT = 500;		//give the allowance 
+const int I2Cx_RECIEVE_TIMEOUT = 500;	//test result: mostly 282 times
 const int I2Cx_SEND_TIMEOUT = 80;
 
 class I2CDriver
@@ -38,7 +38,7 @@ public:
 	uint8_t I2C_ByteRead(uint8_t REG_Address);
 	void I2C_Mode_Config(void);
 	void I2C_GPIO_Config(void);
-	int readByte(uint8_t r_addr, uint8_t* p_data, uint16_t len);
+	int readByte(uint8_t slave_address, uint8_t slave_register_address, uint8_t* p_data, uint16_t len);
 	int readArrary();
 	int cleanReadBuf();
 	
@@ -49,6 +49,7 @@ private:
 	void releaseBusByForce(void);
 	uint32_t I2Cx_TIMEOUT_UserCallback(char value);
 	uint32_t WAIT_FOR_FLAG(uint32_t flag, FlagStatus value, int timeout, int errorcode);
+	uint32_t WAIT_FOR_EVENT(uint32_t event, int timeout, int errorcode);
 
 	I2C_InitTypeDef _i2c;
 	I2C_TypeDef * _i2c_chanel;
