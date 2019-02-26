@@ -37,61 +37,47 @@ uint32_t I2CDriver::WAIT_FOR_EVENT(uint32_t event, int timeout, int errorcode)
 														
 uint32_t I2CDriver::I2Cx_TIMEOUT_UserCallback(char value)
 {
-//to release the bus of i2c if there is a error and print the link where is .
-/******************************************************************************/
-//	I2C_GenerateSTOP(I2C1, ENABLE);
-//	I2C_SoftwareResetCmd(I2C1, ENABLE);
-//	I2C_SoftwareResetCmd(I2C1, DISABLE);
-//	I2C_DeInit(I2C1);
-//	_i2c.I2C_ClockSpeed = _clock_speed;
-//    _i2c.I2C_Mode = _i2c_mode;
-//    _i2c.I2C_DutyCycle = _duty_cycle;
-//    _i2c.I2C_OwnAddress1 = _own_address;
-//    _i2c.I2C_Ack = I2C_Ack_Enable;
-//    _i2c.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-//	I2C_Cmd(I2C1, ENABLE);
-//	I2C_Init(I2C1, &_i2c);
-	//print_count++;
-	//SEGGER_RTT_printf(0,"failed : %d : %d \r\n", print_count, value);
-	//Console::Instance()->printf("\r\n I2C1 Restarted. errorid:%d \n",value);
+	SEGGER_RTT_printf(0,"\r\n Failed code:%d \r\n", value);
 	return 1;
-/******************************************************************************/
 }
 
 void I2CDriver::releaseBusByForce()
 {
-	I2Cx_TIMEOUT_UserCallback(0);
+	I2C_GenerateSTOP(I2C1, ENABLE);
+	I2C_SoftwareResetCmd(I2C1, ENABLE);
+	I2C_SoftwareResetCmd(I2C1, DISABLE);
+	I2C_DeInit(I2C1);
+	_i2c.I2C_ClockSpeed = _clock_speed;
+    _i2c.I2C_Mode = _i2c_mode;
+    _i2c.I2C_DutyCycle = _duty_cycle;
+    _i2c.I2C_OwnAddress1 = _own_address;
+    _i2c.I2C_Ack = I2C_Ack_Enable;
+    _i2c.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
+	I2C_Cmd(I2C1, ENABLE);
+	I2C_Init(I2C1, &_i2c);
 }
 
 void I2CDriver::I2C_Mode_Config(void)
 {
 	I2C_InitTypeDef I2C_InitStructure;
-
 	I2C_InitStructure.I2C_Mode = I2C_Mode_I2C ;
 	I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
 	I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
 	I2C_InitStructure.I2C_ClockSpeed = 40000;
-
 	I2C_Init(I2C1, &I2C_InitStructure); 
-
 	I2C_Cmd (I2C1,ENABLE);
-
 	I2C_AcknowledgeConfig(I2C1, ENABLE); 
 }
 
 void I2CDriver::I2C_GPIO_Config(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
-
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1,ENABLE); 
-
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 }
-
-
 
 void I2CDriver::initialize()
 {

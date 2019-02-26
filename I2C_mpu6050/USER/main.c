@@ -5,7 +5,17 @@
 #include "delay.h"
 #include "SEGGER_RTT.h"
 
-void LED_D2_D3(uint32_t);
+void LED_D2_D3(void)
+{
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
+	GPIO_InitTypeDef GPIOInit;
+	GPIOInit.GPIO_Mode = GPIO_Mode_OUT;
+	GPIOInit.GPIO_OType = GPIO_OType_PP;
+	GPIOInit.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
+	GPIOInit.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIOInit.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOA,&GPIOInit);
+}
 
 void InitMPU6050(void);
 
@@ -33,7 +43,7 @@ unsigned int GetData(unsigned char REG_Address);
 #define	WHO_AM_I		0x75	
 #define	SlaveAddress	0xD0
 
-I2CDriver i2c;
+static I2CDriver i2c;
 
 //MPU的send的地址是0xD0,不需要移位操作。出错的时候要等待I2C事件，不要重启总线，否则会一直卡在那。
 int main(void)
@@ -54,20 +64,7 @@ int main(void)
 		SEGGER_RTT_printf(0,"\r\n---------gZ----------%d \r\n",GetData(GYRO_ZOUT_H));
 		delay_ms(20);
 		SEGGER_RTT_printf(0,"=====================================================================");
-	} 
-	
-}
-
-void LED_D2_D3(uint32_t GPIO_Pin_x)
-{
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
-	GPIO_InitTypeDef GPIOInit;
-	GPIOInit.GPIO_Mode = GPIO_Mode_OUT;
-	GPIOInit.GPIO_OType = GPIO_OType_PP;
-	GPIOInit.GPIO_Pin = GPIO_Pin_x;
-	GPIOInit.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	GPIOInit.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOA,&GPIOInit);
+	} 	
 }
 
 void InitMPU6050(void)
