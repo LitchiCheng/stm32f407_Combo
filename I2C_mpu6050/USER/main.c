@@ -5,6 +5,8 @@
 #include "delay.h"
 #include "SEGGER_RTT.h"
 
+#include "Timer.h"
+
 void LED_D2_D3(void)
 {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
@@ -15,6 +17,7 @@ void LED_D2_D3(void)
 	GPIOInit.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIOInit.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA,&GPIOInit);
+	GPIO_SetBits(GPIOA, GPIO_Pin_6 | GPIO_Pin_7);
 }
 
 void InitMPU6050(void);
@@ -44,6 +47,8 @@ unsigned int GetData(unsigned char REG_Address);
 #define	SlaveAddress	0xD0
 
 static I2CDriver i2c;
+static Timer test1;
+static Timer test2;
 
 //MPU的send的地址是0xD0,不需要移位操作。出错的时候要等待I2C事件，不要重启总线，否则会一直卡在那。
 int main(void)
@@ -53,6 +58,9 @@ int main(void)
 	i2c.initialize();
 	InitMPU6050();
 	delay_ms(2000);
+	LED_D2_D3();
+	bool Turn = false;
+	bool Turn1 = false;
 	SEGGER_RTT_printf(0,"\r\n gyro start \r\n");
 	while(1)
 	{
@@ -64,6 +72,17 @@ int main(void)
 		SEGGER_RTT_printf(0,"\r\n---------gZ----------%d \r\n",GetData(GYRO_ZOUT_H));
 		delay_ms(20);
 		SEGGER_RTT_printf(0,"=====================================================================");
+		SEGGER_RTT_printf(0,"\r\n now clock is %d \r\n",timer_lower::Instance()->getNowTime_ms());
+		if(test1.isTimeUp_ms(1000))
+		{
+			Turn = Turn ? false:true;
+			Turn ? GPIO_SetBits(GPIOA, GPIO_Pin_6) : GPIO_ResetBits(GPIOA, GPIO_Pin_6);
+		}
+		if(test2.isTimeUp_ms(1000))
+		{
+			Turn1 = Turn1 ? false:true;
+			Turn1 ? GPIO_SetBits(GPIOA, GPIO_Pin_7) : GPIO_ResetBits(GPIOA, GPIO_Pin_7);
+		}
 	} 	
 }
 

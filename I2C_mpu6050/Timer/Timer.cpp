@@ -7,7 +7,62 @@
 #define BASIC_TIM_IRQn TIM6_DAC_IRQn
 #define BASIC_TIM_IRQHandler TIM6_DAC_IRQHandler
 
-Timer::Timer():_now_time_ms(0)
+/****************************************************************************************************************/
+Timer::Timer():_previous_time_ms(0), _previous_time_us(0)
+{
+
+}
+
+bool Timer::isTimeUp_us(uint32_t how_long_us)
+{
+    if(_first_come_for_us)
+    {
+        _first_come_for_us = false;
+        _previous_time_us = timer_lower::Instance()->getNowTime_us();
+    }
+    if((timer_lower::Instance()->getNowTime_us() - _previous_time_us) >= how_long_us)
+	{
+		_first_come_for_us = true;
+        return true;
+    }
+	else
+    {
+        return false;
+    }  
+}
+
+bool Timer::isTimeUp_ms(uint32_t how_long_ms)
+{
+    if(_first_come_for_ms)
+    {
+        _first_come_for_ms = false;
+        _previous_time_ms = timer_lower::Instance()->getNowTime_ms();
+    }
+    if((timer_lower::Instance()->getNowTime_ms() - _previous_time_ms) >= how_long_ms)
+	{
+		_first_come_for_ms = true;
+        return true;
+    }
+	else
+    {
+        return false;
+    } 
+}
+
+void Timer::delay_ms(uint32_t how_long_ms)
+{
+	uint32_t start_time = timer_lower::Instance()->getNowTime_ms();
+	while(!((timer_lower::Instance()->getNowTime_ms()-start_time) >= how_long_ms)){}
+}
+
+void Timer::delay_us(uint32_t how_long_us)
+{
+	uint32_t start_time = timer_lower::Instance()->getNowTime_us();
+	while(!((timer_lower::Instance()->getNowTime_us()-start_time) >= how_long_us)){}
+}
+
+/****************************************************************************************************************/
+CTimer_Lower::CTimer_Lower()
 {
 	//lower part need to implement
 	
@@ -20,6 +75,8 @@ Timer::Timer():_now_time_ms(0)
 
 	//1 us/count
 	TIM_TimeBaseStructure.TIM_Prescaler = 8400-1;
+	
+	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
 
 	TIM_TimeBaseInit(BASIC_TIM, &TIM_TimeBaseStructure);
 
@@ -42,46 +99,9 @@ Timer::Timer():_now_time_ms(0)
 	NVIC_Init(&NVIC_InitStructure);
 
 	TIM_Cmd(BASIC_TIM, ENABLE);
-
 }
 
-bool Timer::isTimeUp_us(uint32_t how_long_us)
-{
-    if(_first_come_for_us)
-    {
-        _first_come_for_us = false;
-        _previous_time_us = getNowTime_us();
-    }
-    if((getNowTime_us() - _previous_time_us) >= how_long_us)
-	{
-		_first_come_for_us = true;
-        return true;
-    }
-	else
-    {
-        return false;
-    }  
-}
-
-bool Timer::isTimeUp_ms(uint32_t how_long_ms)
-{
-    if(_first_come_for_ms)
-    {
-        _first_come_for_ms = false;
-        _previous_time_ms = getNowTime_ms();
-    }
-    if((getNowTime_ms() - _previous_time_ms) >= how_long_ms)
-	{
-		_first_come_for_ms = true;
-        return true;
-    }
-	else
-    {
-        return false;
-    } 
-}
-
-uint32_t Timer::getNowTime_us()
+uint32_t CTimer_Lower::getNowTime_us()
 {
     //lower part need to implement
 	return TIM_GetCounter(BASIC_TIM);
@@ -94,10 +114,14 @@ void TIM6_DAC_IRQHandler(void)
 {
 	if ( TIM_GetITStatus( BASIC_TIM, TIM_IT_Update) == SET ) 
 	{
-		timer::Instance()->nowTimeUpdate_ms();	
+		TIM_ClearITPendingBit(BASIC_TIM , TIM_IT_Update);
+		timer_lower::Instance()->nowTimeUpdate_ms();
+		TIM_ClearITPendingBit(BASIC_TIM , TIM_IT_Update);				
 	}
-	TIM_ClearITPendingBit(BASIC_TIM , TIM_IT_Update);
+	
 }
 #ifdef __cplusplus
 }
 #endif
+
+/****************************************************************************************************************/
