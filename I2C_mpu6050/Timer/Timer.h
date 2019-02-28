@@ -27,7 +27,7 @@ class Timer
 {
 public:
 	Timer();
-    ~Timer();
+    ~Timer(){}
 	bool isTimeUp_us(uint32_t how_long_us);
     bool isTimeUp_ms(uint32_t how_long_ms);
 	void delay_ms(uint32_t how_long_ms);
