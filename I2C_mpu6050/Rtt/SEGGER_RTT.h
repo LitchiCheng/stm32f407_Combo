@@ -159,6 +159,7 @@ unsigned     SEGGER_RTT_WriteNoLock             (unsigned BufferIndex, const voi
 unsigned     SEGGER_RTT_WriteSkipNoLock         (unsigned BufferIndex, const void* pBuffer, unsigned NumBytes);
 unsigned     SEGGER_RTT_WriteString             (unsigned BufferIndex, const char* s);
 void         SEGGER_RTT_WriteWithOverwriteNoLock(unsigned BufferIndex, const void* pBuffer, unsigned NumBytes);
+int printf2(const char *fmt,...);
 //
 // Function macro for performance optimization
 //

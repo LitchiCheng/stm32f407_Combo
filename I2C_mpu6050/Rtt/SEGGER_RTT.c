@@ -1453,5 +1453,20 @@ int SEGGER_RTT_TerminalOut (char TerminalId, const char* s) {
   return Status;
 }
 
+#include "stdio.h"
+#include "stdarg.h"
+
+int printf2(const char *fmt,...) {
+ 
+  char buffer[128];
+  va_list args;
+  va_start (args, fmt);
+  int n = vsnprintf(buffer, sizeof(buffer), fmt, args);
+  SEGGER_RTT_Write(0, buffer, n);
+  va_end(args);
+  return n;
+}
+
+
 
 /*************************** End of file ****************************/

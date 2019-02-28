@@ -431,6 +431,7 @@ int SEGGER_RTT_vprintf(unsigned BufferIndex, const char * sFormat, va_list * pPa
         v = va_arg(*pParamList, int);
         _PrintUnsigned(&BufferDesc, (unsigned)v, 16u, NumDigits, FieldWidth, FormatFlags);
         break;
+	  //case 'f': num = PutSignedInt(pStr, fill, width, va_arg(ap, signed int)); break;
       case 's':
         {
           const char * s = va_arg(*pParamList, const char *);
