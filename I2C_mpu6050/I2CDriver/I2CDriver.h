@@ -2,6 +2,7 @@
 #define __I2CDriver__H
 
 #include <stm32f4xx.h>
+#include "Singleton.h"
 
 #define CLEAR_ADDR_BIT			I2C_ReadRegister(I2C1, I2C_Register_SR1);\
 								I2C_ReadRegister(I2C1, I2C_Register_SR2);\
@@ -40,6 +41,10 @@ public:
 	void I2C_GPIO_Config(void);
 	int readByte(uint8_t slave_address, uint8_t slave_register_address, uint8_t* p_data, uint16_t len);
 	int readArrary();
+	
+	int i2c_read(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *buf);
+	int i2c_write(uint8_t hw_address, uint8_t reg_address, uint8_t len, uint8_t* data);
+	
 	int cleanReadBuf();
 	
 	void setFastMode();
@@ -64,5 +69,7 @@ private:
 	uint16_t _own_address;
 	
 };
+
+typedef NormalSingleton<I2CDriver> i2c;
 
 #endif

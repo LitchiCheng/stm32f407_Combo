@@ -1,5 +1,6 @@
 #include "I2CDriver.h"
 #include "SEGGER_RTT.h"
+#include "string.h"
 
 static int32_t print_count = 0;
 
@@ -165,11 +166,26 @@ void I2CDriver::I2C_ByteWrite(uint8_t REG_Address,uint8_t REG_data)
 	writeArrary(0xd0, data, 2);
 }
 
+int I2CDriver::i2c_write(uint8_t hw_address, uint8_t reg_address, uint8_t len, uint8_t* data)
+{
+	uint8_t * data_arrary;
+	memcpy(data_arrary,&reg_address,1);
+	memcpy(data_arrary+1,data,len);
+	writeArrary(hw_address << 1, data, len+1);
+	return 0;	
+}
+
 uint8_t I2CDriver::I2C_ByteRead(uint8_t REG_Address)
 {
 	uint8_t return_data;
 	readByte(0xD0, REG_Address, &return_data, 1);
 	return return_data;	
+}
+
+int I2CDriver::i2c_read(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *buf)
+{
+	readByte(addr << 1, reg, buf, len);
+	return 0;
 }
 
 int I2CDriver::readByte(uint8_t slave_address, uint8_t slave_register_address, uint8_t* p_data, uint16_t len)
